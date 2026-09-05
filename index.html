@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="OXY46 Inhouse: un especialista en IA dentro de tu empresa, todas las semanas. Una historia de tres minutos.">
+<meta property="og:title" content="OXY46 Inhouse — Un especialista en IA dentro de tu empresa">
+<meta property="og:description" content="Cuatro horas presenciales por semana con Martín Cabrera. Escuchá la historia.">
+<meta property="og:image" content="assets/img/s03.jpg">
+<meta name="theme-color" content="#F4F1EC">
+<title>OXY46 Inhouse</title>
+<style>
+@font-face{font-family:"Miranda Sans";font-weight:400;font-style:normal;font-display:swap;src:url("assets/miranda-400.woff2") format("woff2")}
+@font-face{font-family:"Miranda Sans";font-weight:500;font-style:normal;font-display:swap;src:url("assets/miranda-500.woff2") format("woff2")}
+@font-face{font-family:"Miranda Sans";font-weight:600;font-style:normal;font-display:swap;src:url("assets/miranda-600.woff2") format("woff2")}
+@font-face{font-family:"Miranda Sans";font-weight:700;font-style:normal;font-display:swap;src:url("assets/miranda-700.woff2") format("woff2")}
+@font-face{font-family:"STIX General";font-weight:400;font-style:italic;font-display:swap;src:url("assets/stix-italic.woff2") format("woff2")}
+@font-face{font-family:"STIX General";font-weight:400;font-style:normal;font-display:swap;src:url("assets/stix-regular.woff2") format("woff2")}
+
+:root{
+  --cream:#F4F1EC;--almost:#FAFAFA;--navy:#1B2A40;--ink:#17202B;--red:#B0152B;
+  --ocre:#B89968;--ocre-d:#8A6F44;--ocre-s:#D9C39B;--muted:#3E4C60;--muted-2:#697586;--hair:#d9d4cb;
+  --sans:"Miranda Sans",Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --serif:"STIX General","STIX Two Text","Times New Roman",Georgia,serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --bg:var(--cream);--fg:var(--navy);--fg-2:var(--muted);--accent-i:var(--ocre);--accent-i-s:var(--ocre-d);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--cream);color:var(--navy);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+
+#app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:minmax(0,1fr);background:var(--bg);color:var(--fg);transition:background .9s var(--ease),color .9s var(--ease)}
+#app[data-surface="navy"]{--bg:var(--navy);--fg:var(--cream);--fg-2:#c8cfd8;--accent-i:var(--ocre-s);--accent-i-s:var(--ocre-s)}
+#app[data-surface="ink"]{--bg:var(--ink);--fg:var(--cream);--fg-2:#bdc5d0;--accent-i:var(--ocre-s);--accent-i-s:var(--ocre-s)}
+
+/* ---------- top bar ---------- */
+.bar{display:flex;align-items:center;justify-content:space-between;padding:18px clamp(20px,4vw,56px) 0;position:relative;z-index:5}
+.brand{display:flex;align-items:center;gap:14px;letter-spacing:.01em}
+.wm{font-weight:700;font-size:22px;letter-spacing:-.01em}
+.wm b{font-weight:400}
+.brand .sep{width:1px;height:20px;background:currentColor;opacity:.35}
+.brand em{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--accent-i)}
+.bar-right{display:flex;gap:8px;align-items:center}
+.icon-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid currentColor;opacity:.75;transition:opacity .2s}
+.icon-btn:hover{opacity:1}
+.icon-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.progress{position:absolute;left:clamp(20px,4vw,56px);right:clamp(20px,4vw,56px);bottom:-14px;height:1px;background:color-mix(in srgb,currentColor 18%,transparent)}
+.progress i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--red);transition:width .4s linear}
+.progress b{position:absolute;top:-3px;width:7px;height:7px;border-radius:50%;background:var(--red);margin-left:-3px;transform:translateX(var(--x))}
+
+/* ---------- stage ---------- */
+#stage{position:relative;overflow:hidden}
+.scene{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,10fr) minmax(0,11fr);gap:clamp(24px,4vw,64px);padding:clamp(16px,3vh,40px) clamp(20px,4vw,56px);opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .8s var(--ease),transform .8s var(--ease),visibility 0s .8s}
+.scene.active{opacity:1;visibility:visible;transform:none;transition:opacity .9s var(--ease) .1s,transform .9s var(--ease) .1s,visibility 0s}
+.scene.leaving{opacity:0;transform:translateY(-10px)}
+.scene.single{grid-template-columns:minmax(0,1fr)}
+.copy{display:flex;flex-direction:column;justify-content:center;min-width:0;max-width:640px}
+.eyebrow{display:flex;align-items:center;gap:12px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--fg);margin-bottom:clamp(14px,2.4vh,26px)}
+.eyebrow:before{content:"";width:30px;height:1px;background:var(--red);flex:none}
+h1,h2{margin:0;font-weight:700;letter-spacing:-.022em;line-height:.98;text-wrap:balance}
+h1{font-size:clamp(38px,6.2vw,84px)}
+h2{font-size:clamp(34px,4.6vw,60px)}
+.sub{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(24px,2.6vw,34px);line-height:1.15;color:var(--accent-i);margin-top:clamp(10px,1.6vh,18px);text-wrap:balance}
+.body{font-size:clamp(15px,1.15vw,18px);color:var(--fg-2);max-width:52ch;margin-top:clamp(14px,2.2vh,26px)}
+.dot{display:inline-block;width:.16em;height:.16em;border-radius:50%;background:var(--red);vertical-align:baseline;margin-left:.08em}
+
+/* word / char reveal */
+.w{display:inline-block;white-space:pre}
+.rise .w{opacity:0;transform:translateY(.55em) rotate(1.5deg);transition:opacity .55s var(--ease),transform .7s var(--ease);transition-delay:calc(var(--i)*55ms)}
+.active .rise .w,.rise.in .w{opacity:1;transform:none}
+
+/* ---------- picture panel ---------- */
+.pic{position:relative;min-width:0;min-height:0;align-self:stretch;height:100%;width:100%;overflow:hidden;background:var(--almost);box-shadow:0 1px 0 var(--hair) inset}
+#app[data-surface="navy"] .pic,#app[data-surface="ink"] .pic{background:#243650;box-shadow:none}
+.pic.bare{background:transparent!important}
+.pic.bare .ov path,.pic.bare .ov line,.pic.bare .ov circle{stroke:var(--ocre-s)}
+.pic img{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;transform:translate(var(--px,0),var(--py,0)) scale(var(--zoom,1));transition:transform .9s var(--ease);will-change:transform}
+.pic .ov{position:absolute;inset:0;width:100%;height:100%;transform:translate(calc(var(--px,0)*1.6),calc(var(--py,0)*1.6));transition:transform .9s var(--ease);pointer-events:none}
+.pic .ov *{vector-effect:non-scaling-stroke}
+.pic .ov path,.pic .ov line,.pic .ov circle,.pic .ov rect,.pic .ov polyline{fill:none;stroke:var(--navy);stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.4s var(--ease)}
+.pic .ov .in path,.pic .ov .in line,.pic .ov .in circle,.pic .ov .in rect,.pic .ov .in polyline,.pic .ov.in path,.pic .ov.in line,.pic .ov.in circle,.pic .ov.in rect,.pic .ov.in polyline{stroke-dashoffset:0}
+.pic .ov .dash{stroke-dasharray:.02 .015!important;stroke-dashoffset:0!important;opacity:0;transition:opacity .8s}
+.pic .ov .in .dash,.pic .ov.in .dash{opacity:1}
+.pic .ov .fill{fill:var(--ocre);stroke:none!important;opacity:0;transition:opacity .8s .4s}
+.pic .ov .in .fill,.pic .ov.in .fill{opacity:.55}
+.pic .ov .reddot{fill:var(--red);stroke:none!important;stroke-dasharray:none;opacity:0;transform-origin:center;transform:scale(.2);transition:opacity .5s .9s,transform .6s var(--ease) .9s}
+.pic .ov .in .reddot,.pic .ov.in .reddot{opacity:1;transform:none}
+.pic .lbl{position:absolute;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);background:rgba(250,250,250,.85);padding:4px 7px;border-left:2px solid var(--red);opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s;pointer-events:none}
+.pic .lbl.ocre{border-left-color:var(--ocre)}
+.pic.show-lbl .lbl{opacity:1;transform:none}
+.pic .hint{position:absolute;right:12px;bottom:12px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);background:rgba(250,250,250,.75);padding:5px 8px;opacity:.9}
+.pic.show-lbl .hint{opacity:0}
+.pic.empty:after{content:"";position:absolute;inset:0;background:
+  linear-gradient(90deg,transparent 49.5%,rgba(27,42,64,.08) 50%,transparent 50.5%) 0 0/48px 48px,
+  linear-gradient(0deg,transparent 49.5%,rgba(27,42,64,.08) 50%,transparent 50.5%) 0 0/48px 48px}
+
+/* ---------- interactive zones ---------- */
+.zone{margin-top:clamp(16px,2.6vh,30px)}
+
+/* s01: scattered words */
+.scatter .w{transition:transform 1.1s var(--ease),opacity .5s,color .5s}
+.scatter.loose .w{transform:translate(var(--dx),var(--dy)) rotate(var(--r))}
+.scatter.loose .w.dim{opacity:.35}
+
+/* s02: strike */
+.strike{position:relative;display:inline-block;padding-right:.1em}
+.strike svg{position:absolute;left:-2%;top:0;width:104%;height:100%;overflow:visible;pointer-events:none}
+.strike svg path{fill:none;stroke:var(--red);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .7s var(--ease)}
+.strike.on svg path{stroke-dashoffset:0}
+.strike.on{color:var(--muted-2)}
+.lines{display:flex;flex-direction:column;gap:.35em;font-size:clamp(19px,1.7vw,24px);font-weight:500}
+.lines > span{opacity:0;transform:translateY(8px);transition:opacity .5s,transform .6s var(--ease)}
+.lines > span.in{opacity:1;transform:none}
+
+/* s03: underline */
+.ul{position:relative;display:inline-block}
+.ul svg{position:absolute;left:-1%;right:-1%;bottom:-.18em;width:102%;height:.32em;overflow:visible}
+.ul svg path{fill:none;stroke:var(--red);stroke-width:2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .9s var(--ease) .1s}
+.ul.on svg path{stroke-dashoffset:0}
+
+/* s04: hero number + cards */
+.hero-n{display:flex;align-items:baseline;gap:.25em;font-family:var(--serif);font-style:italic;color:var(--accent-i);font-size:clamp(64px,8vw,120px);line-height:.9;font-variant-numeric:tabular-nums}
+.hero-n small{font-family:var(--sans);font-style:normal;font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--fg)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;perspective:900px}
+.card{position:relative;background:var(--almost);border-top:3px solid var(--red);padding:14px 14px 16px;min-height:118px;opacity:0;transform:translateY(16px);transition:opacity .6s var(--ease),transform .7s var(--ease),box-shadow .3s;transform-style:preserve-3d;cursor:pointer}
+.card.in{opacity:1;transform:translateY(0) rotateX(var(--rx,0)) rotateY(var(--ry,0))}
+.card.lit{box-shadow:0 12px 30px -14px rgba(23,32,43,.35)}
+.card .n{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--ocre-d)}
+.card h4{margin:6px 0 4px;font-size:14px;letter-spacing:.01em;color:var(--navy)}
+.card p{margin:0;font-size:12.5px;line-height:1.4;color:var(--muted-2)}
+.card.lit h4{color:var(--red)}
+#app[data-surface="cream"] .card{background:var(--almost)}
+
+/* s05: flow */
+.flow{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 18px}
+.node{position:relative;border:1px solid var(--navy);padding:10px 12px;font-size:13px;font-weight:600;line-height:1.25;background:var(--almost);opacity:0;transform:scale(.92);transition:opacity .45s var(--ease),transform .55s var(--ease),background .3s,color .3s;cursor:default}
+.node.in{opacity:1;transform:none}
+.node:hover,.node.hot{background:var(--navy);color:var(--cream)}
+.node i{position:absolute;right:8px;top:8px;width:6px;height:6px;border-radius:50%;background:var(--red);opacity:0;transition:opacity .3s}
+.node.in i{opacity:1}
+.node:after{content:"";position:absolute;top:50%;right:-18px;width:18px;height:1px;background:var(--navy);opacity:0;transition:opacity .4s .3s}
+.node.in.arrow:after{opacity:1}
+.flow .note{grid-column:1/-1;font-family:var(--serif);font-style:italic;color:var(--accent-i-s);font-size:clamp(17px,1.4vw,20px);opacity:0;transition:opacity .6s}
+.flow .note.in{opacity:1}
+
+/* s06: stamps */
+.stamps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.stamp{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--hair);opacity:0;transform:scale(1.25) rotate(-3deg);transition:opacity .35s,transform .45s cubic-bezier(.3,1.6,.4,1)}
+.stamp.in{opacity:1;transform:none}
+.stamp:hover{transform:rotate(-1deg)}
+.stamp b{font-size:14px;line-height:1.25;color:var(--navy)}
+.stamp span{display:block;font-size:12px;color:var(--muted-2);margin-top:2px}
+.stamp svg{width:26px;height:26px;flex:none;fill:none;stroke:var(--navy);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.stamp svg .r{fill:var(--red);stroke:none}
+.stamp svg .o{fill:var(--ocre);stroke:none;opacity:.7}
+
+/* s07: path */
+.path-wrap{position:relative;width:100%;max-width:880px;margin:0 auto}
+.path-wrap svg{width:100%;height:auto;display:block;overflow:visible}
+.path-wrap .trail{fill:none;stroke:var(--ocre-s);stroke-width:1.5;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 3.2s linear}
+.path-wrap.go .trail{stroke-dashoffset:0}
+.path-wrap svg .k{fill:var(--navy);stroke:var(--cream);stroke-width:1.5;opacity:0;transition:opacity .5s,fill .3s}
+.path-wrap svg .k.last{stroke:var(--red)}
+.path-wrap.go svg .k{opacity:1;transition-delay:calc(var(--d,0)*.8s)}
+.path-wrap svg .k.hot{fill:var(--red);stroke:var(--red)}
+.ms-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:8px;text-align:left}
+.ms{opacity:.28;transition:opacity .6s var(--ease);cursor:default;padding-top:10px;border-top:1px solid rgba(244,241,236,.18)}
+.ms.in{opacity:1}
+.ms.hot{border-top-color:var(--red)}
+.ms .num{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--ocre-s);line-height:1}
+.ms h4{margin:4px 0 4px;font-size:clamp(14px,1.3vw,18px);color:var(--cream)}
+.ms p{margin:0;font-size:12.5px;line-height:1.4;color:#bcc4cf;max-width:24ch}
+.tagline{text-align:center;font-family:var(--serif);font-style:italic;font-size:clamp(22px,2.2vw,30px);color:var(--ocre-s);opacity:0;transform:translateY(8px);transition:opacity .7s,transform .7s var(--ease);margin-top:clamp(20px,4vh,44px)}
+.tagline.in{opacity:1;transform:none}
+
+/* s08: checklist */
+.check{display:flex;flex-direction:column}
+.check label{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--hair);font-size:clamp(15px,1.25vw,18px);font-weight:500;color:var(--navy);opacity:.35;transition:opacity .4s,color .3s;cursor:pointer;user-select:none}
+.check label:last-of-type{border-bottom:1px solid var(--hair)}
+.check label.in{opacity:1}
+.check input{position:absolute;opacity:0;pointer-events:none}
+.check .box{width:18px;height:18px;border:1px solid var(--navy);flex:none;display:grid;place-items:center;transition:background .25s,border-color .25s}
+.check .box:after{content:"";width:7px;height:7px;border-radius:50%;background:var(--red);transform:scale(0);transition:transform .35s cubic-bezier(.3,1.6,.4,1)}
+.check label.on .box:after{transform:scale(1)}
+.check .verdict{margin-top:14px;font-family:var(--serif);font-style:italic;font-size:clamp(20px,2vw,26px);color:var(--accent-i-s);min-height:1.3em;opacity:0;transition:opacity .5s}
+.check .verdict.in{opacity:1}
+.check .help{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin-top:8px;opacity:0;transition:opacity .5s}
+.check .help.in{opacity:1}
+
+/* s09: Martín */
+.name{font-size:clamp(64px,10vw,150px);line-height:.9;letter-spacing:-.03em}
+.name .dot{width:.14em;height:.14em}
+.spot{position:absolute;inset:0;pointer-events:none;background:radial-gradient(760px 760px at var(--mx,70%) var(--my,40%),rgba(217,195,155,.07),transparent 70%);transition:opacity .6s;opacity:0}
+.active .spot{opacity:1}
+.bio p{margin:0 0 .8em;opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s var(--ease)}
+.bio p.in{opacity:1;transform:none}
+.hair{width:64px;height:1px;background:var(--red);margin:22px 0}
+
+/* s10: CTA */
+.cta{position:relative;display:inline-flex;align-items:center;gap:14px;background:var(--cream);color:var(--navy);padding:18px 26px;font-weight:600;font-size:clamp(15px,1.2vw,18px);text-decoration:none;margin-top:8px;opacity:0;transform:translateY(12px);transition:opacity .6s,transform .7s var(--ease),background .25s;will-change:transform}
+.cta.in{opacity:1;transform:translateY(0)}
+.cta:hover{background:#fff}
+.cta .dot{width:8px;height:8px;margin:0}
+.cta svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.links{display:flex;gap:22px;flex-wrap:wrap;margin-top:22px;font-size:13px;opacity:0;transition:opacity .6s .3s}
+.links.in{opacity:1}
+.links a,.links button{color:var(--fg-2);text-decoration:none;border-bottom:1px solid color-mix(in srgb,currentColor 35%,transparent);padding-bottom:2px}
+.links a:hover,.links button:hover{color:var(--fg);border-color:var(--red)}
+
+/* ---------- cover ---------- */
+.cover .copy{max-width:720px}
+.cover .kicker{font-size:clamp(15px,1.15vw,18px);color:var(--fg-2);max-width:50ch;margin-top:clamp(14px,2.2vh,26px)}
+.play-row{display:flex;align-items:center;gap:22px;margin-top:clamp(22px,3.6vh,40px);flex-wrap:wrap}
+.play{display:inline-flex;align-items:center;gap:16px;background:var(--navy);color:var(--cream);padding:0 26px 0 0;height:64px;font-weight:600;font-size:16px;letter-spacing:.01em;transition:transform .25s var(--ease),box-shadow .25s}
+.play:hover{transform:translateY(-1px);box-shadow:0 14px 30px -16px rgba(27,42,64,.6)}
+.play .ring{width:64px;height:64px;display:grid;place-items:center;border-right:1px solid rgba(244,241,236,.25);position:relative}
+.play .ring svg{width:20px;height:20px;fill:var(--cream);margin-left:3px}
+.play .ring:after{content:"";position:absolute;inset:14px;border-radius:50%;border:1px solid rgba(244,241,236,.35);animation:pulse 2.2s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.9);opacity:0}}
+.quiet{font-size:13px;color:var(--fg-2);border-bottom:1px solid var(--hair);padding-bottom:2px}
+.quiet:hover{color:var(--fg);border-color:var(--red)}
+.meta{display:flex;gap:26px;margin-top:clamp(22px,3.5vh,40px);padding-top:16px;border-top:1px solid var(--hair);flex-wrap:wrap}
+.meta div{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2)}
+.meta b{display:block;font-family:var(--serif);font-style:italic;font-weight:400;font-size:20px;color:var(--ocre-d);letter-spacing:0;text-transform:none;margin-top:2px}
+
+/* ---------- caption deck ---------- */
+.deck{position:relative;z-index:5;min-width:0;padding:0 clamp(20px,4vw,56px) clamp(14px,2.4vh,24px);display:grid;grid-template-columns:1fr auto;gap:18px;align-items:end}
+.caption{font-size:clamp(15px,1.2vw,18px);line-height:1.45;min-height:2.9em;max-width:70ch;color:var(--fg);border-left:1px solid var(--red);padding-left:14px}
+.caption .cw{opacity:.32;transition:opacity .18s}
+.caption .cw.said{opacity:1}
+.caption .cw.now{opacity:1;color:var(--accent-i-s)}
+.ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.dots{display:flex;gap:6px;margin-right:10px}
+.dots button{width:18px;height:18px;display:grid;place-items:center;opacity:.5}
+.dots button:after{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;transition:transform .2s,background .2s}
+.dots button.cur{opacity:1}.dots button.cur:after{background:var(--red);transform:scale(1.5)}
+.dots button:hover{opacity:1}
+.kbd{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-2);margin-right:10px}
+
+/* ---------- responsive ---------- */
+@media (max-width:900px){
+  .scene{grid-template-columns:1fr;grid-template-rows:minmax(0,32vh) minmax(0,1fr);gap:12px;padding:10px 18px 6px}
+  .scene.single{grid-template-rows:1fr}
+  .pic{order:-1;height:100%;align-self:stretch}
+  .pic.bare{display:none}
+  .copy{justify-content:flex-start;overflow:auto;padding-right:2px;-webkit-overflow-scrolling:touch}
+  .cover .copy{justify-content:flex-start}
+  h1{font-size:clamp(30px,8.6vw,40px)}
+  h2{font-size:clamp(24px,6.6vw,32px)!important}
+  .name{font-size:clamp(48px,15vw,76px)!important}
+  .sub{font-size:clamp(18px,5vw,22px)}
+  .body{font-size:14px;margin-top:10px}
+  .eyebrow{margin-bottom:10px}
+  .zone{margin-top:12px}
+  .cards{grid-template-columns:1fr;gap:6px}
+  .card{min-height:0;padding:8px 12px}
+  .card .n{font-size:16px}
+  .card h4{margin:2px 0 0}
+  .card p{display:none}
+  .flow{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
+  .node{font-size:12px;padding:8px 10px}
+  .node:after{display:none}
+  .stamps{grid-template-columns:1fr;gap:0}
+  .stamp{padding:7px 0;transform:none}
+  .stamp span{display:none}
+  .stamp b{font-size:13px}
+  .ms-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+  .ms p{display:none}
+  .ms h4{font-size:14px}
+  .hero-n{font-size:56px}
+  .check label{padding:9px 0;font-size:14px}
+  .deck{grid-template-columns:1fr;gap:8px;padding-bottom:10px}
+  .caption{font-size:14px;min-height:3.6em}
+  .ctrls{justify-content:space-between}
+  .dots{gap:2px;margin-right:0}
+  .dots button{width:14px;height:14px}
+  .kbd{display:none}
+  .icon-btn{width:36px;height:36px}
+  .bar{padding-top:12px}
+  .progress{bottom:-9px}
+  .meta{gap:14px;margin-top:16px}
+  .meta b{font-size:17px}
+  .play{height:54px;font-size:15px;padding-right:20px}.play .ring{width:54px;height:54px}
+  .play-row{gap:14px;margin-top:18px}
+  .tagline{font-size:20px;margin-top:16px}
+  .links{gap:14px;margin-top:14px}
+  .cta{padding:14px 18px;font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;animation:none!important}
+  .pic img,.pic .ov{transform:none!important}
+}
+</style>
+
+</head>
+<body>
+<div id="app" data-surface="cream">
+  <header class="bar">
+    <div class="brand"><span class="wm">OXY<b>46</b></span><span class="sep"></span><em>Inhouse</em></div>
+    <div class="bar-right">
+      <button class="icon-btn" id="btnMute" aria-label="Silenciar narración" title="Sonido">
+        <svg viewBox="0 0 24 24" id="icoSound"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+      </button>
+      <button class="icon-btn" id="btnRestart" aria-label="Volver al inicio" title="Volver al inicio">
+        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+      </button>
+    </div>
+    <div class="progress" aria-hidden="true"><i id="progFill"></i></div>
+  </header>
+
+  <main id="stage" aria-live="polite">
+
+    <!-- COVER -->
+    <section class="scene cover active" data-id="s00" data-surface="cream">
+      <div class="copy">
+        <div class="eyebrow">OXY46 Inhouse · una historia de tres minutos</div>
+        <h1>Un especialista en IA dentro de tu empresa<span class="dot"></span></h1>
+        <div class="sub">Todas las semanas.</div>
+        <p class="kicker">Antes de leer una propuesta, escuchá cómo cambia un lunes cualquiera cuando alguien que sabe se sienta en tu mesa.</p>
+        <div class="play-row">
+          <button class="play" id="btnPlay"><span class="ring"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span>Escuchar la historia</button>
+          <button class="quiet" id="btnQuiet">Ver sin sonido</button>
+        </div>
+        <div class="meta">
+          <div>Modalidad<b>Presencial</b></div>
+          <div>Frecuencia<b>Semanal</b></div>
+          <div>Dedicación<b>4 horas</b></div>
+          <div>Para<b>Empresas de 50+</b></div>
+        </div>
+      </div>
+      <div class="pic" data-img="s03" data-ov="hero"></div>
+    </section>
+
+    <!-- S01 -->
+    <section class="scene" data-id="s01" data-surface="cream">
+      <div class="copy">
+        <div class="eyebrow">Lunes, 9:00</div>
+        <h2 class="rise scatter" data-words="En tu empresa ya hay gente usando IA."></h2>
+        <div class="sub">Cada uno a su manera.</div>
+        <p class="body">Algunos lo cuentan. Otros no. Cada uno con su herramienta, su prompt y su criterio.</p>
+      </div>
+      <div class="pic" data-img="s01" data-ov="scattered"></div>
+    </section>
+
+    <!-- S02 -->
+    <section class="scene" data-id="s02" data-surface="cream">
+      <div class="copy">
+        <div class="eyebrow">El problema</div>
+        <h2 class="rise" data-words="No es la tecnología."></h2>
+        <div class="sub">Es que nadie tiene tiempo de sentarse a decidir dónde aplicarla.</div>
+        <div class="zone lines" id="lines02">
+          <span><span class="strike" id="strike1">Las capacitaciones pasan.</span></span>
+          <span><span class="strike" id="strike2">Los consultores presentan.</span></span>
+          <span id="same">Y el lunes siguiente, todo sigue igual.</span>
+        </div>
+      </div>
+      <div class="pic" data-img="s02" data-ov="calendar"></div>
+    </section>
+
+    <!-- S03 -->
+    <section class="scene" data-id="s03" data-surface="navy">
+      <div class="copy">
+        <div class="eyebrow">OXY46 Inhouse</div>
+        <h2 class="rise" data-words="Un especialista en IA dentro de tu empresa."></h2>
+        <div class="sub"><span class="ul" id="ul03">Todas las semanas.<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path pathLength="1" d="M1 6 C 20 3, 35 9, 52 5 S 85 3, 99 6"/></svg></span></div>
+        <p class="body">Un servicio mensual de acompañamiento para incorporar inteligencia artificial en las decisiones, los equipos y los procesos reales de la organización.</p>
+      </div>
+      <div class="pic" data-img="s03" data-ov="hero" data-labels="1"></div>
+    </section>
+
+    <!-- S04 -->
+    <section class="scene" data-id="s04" data-surface="cream">
+      <div class="copy">
+        <div class="eyebrow">La jornada semanal</div>
+        <div class="hero-n"><span id="num4">0</span><small>horas · cada semana</small></div>
+        <h2 class="rise" data-words="Enfocadas en lo que la empresa necesita ahora." style="font-size:clamp(24px,2.6vw,34px);margin-top:8px"></h2>
+        <div class="zone cards" id="cards04">
+          <div class="card" data-k="dir"><div class="n">01</div><h4>Con directivos</h4><p>Uno o dos directivos: necesidades, problemas específicos, decisiones y prioridades.</p></div>
+          <div class="card" data-k="areas"><div class="n">02</div><h4>Con áreas gerenciales</h4><p>Sesiones grupales: casos, oportunidades, dudas y necesidades de cada área.</p></div>
+          <div class="card" data-k="manos"><div class="n">03</div><h4>Sobre necesidades concretas</h4><p>Diseñar, probar o poner en marcha soluciones simples que validen valor.</p></div>
+        </div>
+      </div>
+      <div class="pic" data-img="s04" data-ov="dial"></div>
+    </section>
+
+    <!-- S05 -->
+    <section class="scene" data-id="s05" data-surface="cream">
+      <div class="copy">
+        <div class="eyebrow">Dentro de la jornada</div>
+        <h2 class="rise" data-words="Cosas chicas que cambian cómo se trabaja." style="font-size:clamp(28px,3.4vw,44px)"></h2>
+        <div class="zone flow" id="flow05">
+          <div class="node arrow" data-k="proceso">Analizar un proceso y definir cómo incorporar IA<i></i></div>
+          <div class="node arrow" data-k="asistente">Configurar un asistente sencillo<i></i></div>
+          <div class="node" data-k="flujo">Diseñar un flujo de trabajo con IA<i></i></div>
+          <div class="node arrow" data-k="prueba">Hacer una prueba de concepto<i></i></div>
+          <div class="node arrow" data-k="auto">Trabajar una automatización simple<i></i></div>
+          <div class="node" data-k="proto">Avanzar un prototipo acotado<i></i></div>
+          <div class="note" id="note05">Semana a semana. Lo que excede la jornada, se cotiza aparte.</div>
+        </div>
+      </div>
+      <div class="pic" data-img="s05" data-ov="flowchart"></div>
+    </section>
+
+    <!-- S06 -->
+    <section class="scene" data-id="s06" data-surface="cream">
+      <div class="copy">
+        <div class="eyebrow">Incluido para los empleados</div>
+        <h2 class="rise" data-words="Y el equipo no se queda afuera." style="font-size:clamp(28px,3.6vw,48px)"></h2>
+        <div class="sub">Acceso a la Academia de IA.</div>
+        <div class="zone stamps" id="stamps06">
+          <div class="stamp" data-k="fund"><svg viewBox="0 0 24 24"><path d="M4 5h7v14H4zM13 5h7v14h-7z"/><path d="M6 9h3M6 12h3M15 9h3M15 12h3"/></svg><div><b>Fundamentos de IA en el trabajo</b><span>El programa base, desde cero.</span></div></div>
+          <div class="stamp" data-k="ejer"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/><path d="M8 12l3 3 5-6"/><circle class="o" cx="17" cy="7" r="1.6"/></svg><div><b>Formación práctica y ejercicios</b><span>Aplicados al trabajo real.</span></div></div>
+          <div class="stamp" data-k="cert"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="6"/><path d="M9 15l-1 6 4-2 4 2-1-6"/><circle class="r" cx="12" cy="10" r="1.6"/></svg><div><b>Certificación y guías de implementación</b><span>Por función y por industria.</span></div></div>
+          <div class="stamp" data-k="vivo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M10 9l5 3-5 3z"/></svg><div><b>Actualización, clases en vivo y preguntas</b><span>Una base común que se mantiene al día.</span></div></div>
+        </div>
+      </div>
+      <div class="pic" data-img="s06" data-ov="academy"></div>
+    </section>
+
+    <!-- S07 -->
+    <section class="scene single" data-id="s07" data-surface="navy">
+      <div class="copy" style="max-width:none;align-items:center;text-align:center">
+        <div class="eyebrow" style="justify-content:center">Una relación que evoluciona</div>
+        <h2 class="rise" data-words="Del aprendizaje a la aplicación real."></h2>
+        <div class="zone path-wrap" id="path07">
+          <svg viewBox="0 0 800 120" aria-hidden="true">
+            <path class="trail" pathLength="1" d="M20 96 C 110 96, 150 40, 230 48 S 380 100, 470 62 S 640 8, 780 30"/>
+            <circle class="k" cx="20" cy="96" r="5"/><circle class="k" cx="266" cy="58" r="5"/><circle class="k" cx="520" cy="52" r="5"/><circle class="k last" cx="780" cy="30" r="5"/>
+          </svg>
+          <div class="ms-grid">
+            <div class="ms" data-k="cap"><div class="num">01</div><h4>Capacitación</h4><p>Los equipos desarrollan una base común.</p></div>
+            <div class="ms" data-k="acomp"><div class="num">02</div><h4>Acompañamiento</h4><p>La empresa identifica necesidades y prioridades.</p></div>
+            <div class="ms" data-k="aplic"><div class="num">03</div><h4>Aplicación</h4><p>Las oportunidades se convierten en pruebas y soluciones.</p></div>
+            <div class="ms last" data-k="des"><div class="num">04</div><h4>Desarrollos</h4><p>Cuando el alcance lo requiere, se abre un proyecto específico.</p></div>
+          </div>
+        </div>
+        <div class="tagline" id="tag07">Cotizado aparte. Sin sorpresas.</div>
+      </div>
+    </section>
+
+    <!-- S08 -->
+    <section class="scene" data-id="s08" data-surface="cream">
+      <div class="copy">
+        <div class="eyebrow">Para quién es</div>
+        <h2 class="rise" data-words="Empresas que quieren hacerlo con criterio." style="font-size:clamp(28px,3.6vw,48px)"></h2>
+        <div class="sub">Y con continuidad.</div>
+        <div class="zone check" id="check08">
+          <label data-k="pyme"><input type="checkbox"><span class="box"></span>PyMEs y grandes empresas</label>
+          <label data-k="50"><input type="checkbox"><span class="box"></span>Organizaciones de 50 empleados en adelante</label>
+          <label data-k="areas"><input type="checkbox"><span class="box"></span>Oportunidades de IA en distintas áreas</label>
+          <label data-k="acomp"><input type="checkbox"><span class="box"></span>Equipos que necesitan acompañamiento además de formación</label>
+          <div class="verdict" id="verdict08">Si tu empresa es así, esto es para vos.</div>
+          <div class="help" id="help08">Tocá cada línea para marcar las que aplican a tu empresa</div>
+        </div>
+      </div>
+      <div class="pic" data-img="s08" data-ov="org"></div>
+    </section>
+
+    <!-- S09 -->
+    <section class="scene" data-id="s09" data-surface="navy">
+      <div class="spot"></div>
+      <div class="copy">
+        <div class="eyebrow">Quién acompaña el proceso</div>
+        <h2 class="name rise" data-words="Martín Cabrera."></h2>
+        <div class="hair"></div>
+        <div class="bio" id="bio09">
+          <div class="sub" style="margin-top:0">Experiencia ejecutiva, formación y aplicación de IA.</div>
+          <p class="body">Cofundador y CEO de OXY46. Trabaja directamente con directivos y equipos para traducir las posibilidades de la inteligencia artificial en decisiones, prioridades y formas concretas de trabajar.</p>
+          <p class="body">El servicio se presenta y se presta en nombre de OXY46, integrando cuando corresponde las capacidades de formación y desarrollo de la empresa.</p>
+        </div>
+      </div>
+      <div class="pic bare" data-img="" data-ov="signature"></div>
+    </section>
+
+    <!-- S10 -->
+    <section class="scene" data-id="s10" data-surface="ink">
+      <div class="copy">
+        <div class="eyebrow">El lunes que viene</div>
+        <h2 class="rise" data-words="Esta vez, hay alguien en la sala que sabe por dónde empezar." style="font-size:clamp(28px,3.4vw,46px)"></h2>
+        <div class="sub" id="sub10">Una primera conversación alcanza.</div>
+        <div class="zone">
+          <a class="cta" id="cta10" href="mailto:ia@oxy46.com?subject=OXY46%20Inhouse%20%E2%80%94%20Solicitud%20de%20reuni%C3%B3n"><span class="dot"></span>Solicitá una reunión para analizar tu caso<svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+          <div class="links" id="links10">
+            <a href="https://academia-ia-oxy46.martinka1975.chatgpt.site/adopcion-continua" target="_blank" rel="noopener">Ver la propuesta completa ↗</a>
+            <a href="mailto:ia@oxy46.com">ia@oxy46.com</a>
+            <button id="btnAgain">Volver a escuchar</button>
+          </div>
+        </div>
+      </div>
+      <div class="pic" data-img="s10" data-ov="connected"></div>
+    </section>
+
+  </main>
+
+  <footer class="deck">
+    <div class="caption" id="caption">Una historia de tres minutos sobre lo que pasa cuando la IA deja de ser un curso y pasa a ser alguien que se sienta en tu mesa.</div>
+    <div class="ctrls">
+      <span class="kbd">← → · espacio</span>
+      <div class="dots" id="dots"></div>
+      <button class="icon-btn" id="btnPrev" aria-label="Escena anterior"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button class="icon-btn" id="btnPause" aria-label="Pausar"><svg viewBox="0 0 24 24" id="icoPP"><path d="M8 5v14M16 5v14"/></svg></button>
+      <button class="icon-btn" id="btnNext" aria-label="Escena siguiente"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ================= data ================= */
+const SCRIPT = {"scenes": [{"id": "s01", "vo": "Es lunes, nueve de la mañana. En tu empresa ya hay gente usando inteligencia artificial. Algunos lo cuentan. Otros no. Cada uno a su manera, sin un criterio común, y sin nadie que ordene por dónde empezar."}, {"id": "s02", "vo": "El problema no es la tecnología. Es que nadie tiene tiempo de sentarse, mirar los procesos reales y decidir dónde vale la pena aplicarla. Las capacitaciones pasan. Los consultores presentan. Y el lunes siguiente, todo sigue igual."}, {"id": "s03", "vo": "¿Y si en lugar de otro curso, hubiera alguien adentro? Un especialista en inteligencia artificial que llegue todas las semanas, se siente con vos y con tu equipo, y trabaje sobre lo que hoy tenés arriba de la mesa."}, {"id": "s04", "vo": "Cuatro horas presenciales por semana. A veces con uno o dos directivos, analizando decisiones. A veces con las áreas gerenciales, buscando oportunidades. Y a veces, manos a la obra sobre una necesidad concreta."}, {"id": "s05", "vo": "En una jornada se puede analizar un proceso y definir cómo incorporar IA. Configurar un asistente sencillo. Diseñar un flujo de trabajo. Hacer una prueba de concepto. Automatizar algo simple. Avanzar un prototipo. Cosas chicas que, semana a semana, cambian cómo trabaja la empresa."}, {"id": "s06", "vo": "Mientras tanto, todo el equipo tiene acceso a la Academia de IA: Fundamentos de IA en el trabajo, ejercicios prácticos, certificación, guías por función, clases en vivo. Una base común para que el acompañamiento tenga dónde apoyarse."}, {"id": "s07", "vo": "Primero, capacitación: los equipos desarrollan una base común. Después, acompañamiento: la empresa identifica necesidades y prioridades. Después, aplicación: las oportunidades se convierten en pruebas y soluciones. Y cuando el alcance lo pide, se abre un proyecto específico, cotizado aparte. Sin sorpresas."}, {"id": "s08", "vo": "OXY46 Inhouse es para PyMEs y grandes empresas, de cincuenta empleados en adelante, con oportunidades de IA en distintas áreas, y que necesitan acompañamiento además de formación. Si tu empresa es así, esto es para vos."}, {"id": "s09", "vo": "El que llega todas las semanas es Martín Cabrera, cofundador y CEO de OXY46. Trabaja directamente con directivos y equipos para traducir las posibilidades de la inteligencia artificial en decisiones, prioridades y formas concretas de trabajar."}, {"id": "s10", "vo": "Volvamos a ese lunes, nueve de la mañana. Pero esta vez hay alguien en la sala que sabe por dónde empezar. Una primera conversación alcanza para ver si OXY46 Inhouse encaja en tu empresa. Solicitá una reunión. El lunes que viene puede ser distinto."}], "cta": {"label": "Solicitá una reunión para analizar tu caso", "mailto": "mailto:ia@oxy46.com?subject=OXY46%20Inhouse%20%E2%80%94%20Solicitud%20de%20reuni%C3%B3n", "landing": "https://academia-ia-oxy46.martinka1975.chatgpt.site/adopcion-continua"}};
+const IMG = {"s01": "assets/img/s01.jpg", "s02": "assets/img/s02.jpg", "s03": "assets/img/s03.jpg", "s04": "assets/img/s04.jpg", "s05": "assets/img/s05.jpg", "s06": "assets/img/s06.jpg", "s08": "assets/img/s08.jpg", "s10": "assets/img/s10.jpg"};
+const AUD = {"s01": "assets/aud/s01.mp3", "s02": "assets/aud/s02.mp3", "s03": "assets/aud/s03.mp3", "s04": "assets/aud/s04.mp3", "s05": "assets/aud/s05.mp3", "s06": "assets/aud/s06.mp3", "s07": "assets/aud/s07.mp3", "s08": "assets/aud/s08.mp3", "s09": "assets/aud/s09.mp3", "s10": "assets/aud/s10.mp3"};
+const TIMING = {"s01": [{"w": "Es", "s": 0, "e": 0.16}, {"w": "lunes,", "s": 0.2, "e": 0.64}, {"w": "nueve", "s": 0.78, "e": 1.28}, {"w": "de", "s": 1.333, "e": 1.44}, {"w": "la", "s": 1.467, "e": 1.52}, {"w": "mañana.", "s": 1.589, "e": 2.16}, {"w": "En", "s": 2.453, "e": 3.04}, {"w": "tu", "s": 3.067, "e": 3.12}, {"w": "empresa", "s": 3.18, "e": 3.6}, {"w": "ya", "s": 3.653, "e": 3.76}, {"w": "hay", "s": 3.8, "e": 3.92}, {"w": "gente", "s": 3.973, "e": 4.24}, {"w": "usando", "s": 4.286, "e": 4.56}, {"w": "inteligencia", "s": 4.62, "e": 5.2}, {"w": "artificial.", "s": 5.273, "e": 6.4}, {"w": "Algunos", "s": 6.453, "e": 6.8}, {"w": "lo", "s": 6.853, "e": 6.96}, {"w": "cuentan.", "s": 7.027, "e": 7.6}, {"w": "Otros", "s": 7.733, "e": 8.16}, {"w": "no.", "s": 8.24, "e": 8.48}, {"w": "Cada", "s": 8.72, "e": 9.12}, {"w": "uno", "s": 9.18, "e": 9.36}, {"w": "a", "s": 9.4, "e": 9.44}, {"w": "su", "s": 9.467, "e": 9.52}, {"w": "manera,", "s": 9.589, "e": 10.32}, {"w": "sin", "s": 10.38, "e": 10.56}, {"w": "un", "s": 10.587, "e": 10.64}, {"w": "criterio", "s": 10.697, "e": 11.2}, {"w": "común,", "s": 11.24, "e": 11.92}, {"w": "y", "s": 11.96, "e": 12.0}, {"w": "sin", "s": 12.06, "e": 12.24}, {"w": "nadie", "s": 12.3, "e": 12.64}, {"w": "que", "s": 12.68, "e": 12.8}, {"w": "ordene", "s": 12.84, "e": 13.12}, {"w": "por", "s": 13.18, "e": 13.36}, {"w": "dónde", "s": 13.44, "e": 13.76}, {"w": "empezar.", "s": 13.813, "e": 14.4}], "s02": [{"w": "El", "s": 0, "e": 0.08}, {"w": "problema", "s": 0.124, "e": 0.48}, {"w": "no", "s": 0.533, "e": 0.64}, {"w": "es", "s": 0.693, "e": 0.8}, {"w": "la", "s": 0.853, "e": 0.96}, {"w": "tecnología.", "s": 1.008, "e": 1.76}, {"w": "Es", "s": 1.947, "e": 2.32}, {"w": "que", "s": 2.34, "e": 2.4}, {"w": "nadie", "s": 2.46, "e": 2.72}, {"w": "tiene", "s": 2.76, "e": 2.96}, {"w": "tiempo", "s": 3.017, "e": 3.36}, {"w": "de", "s": 3.387, "e": 3.44}, {"w": "sentarse,", "s": 3.504, "e": 4.56}, {"w": "mirar", "s": 4.62, "e": 4.88}, {"w": "los", "s": 4.92, "e": 5.04}, {"w": "procesos", "s": 5.097, "e": 5.52}, {"w": "reales", "s": 5.6, "e": 6.08}, {"w": "y", "s": 6.32, "e": 6.56}, {"w": "decidir", "s": 6.613, "e": 7.04}, {"w": "dónde", "s": 7.173, "e": 7.6}, {"w": "vale", "s": 7.648, "e": 7.84}, {"w": "la", "s": 7.867, "e": 7.92}, {"w": "pena", "s": 7.984, "e": 8.24}, {"w": "aplicarla.", "s": 8.293, "e": 8.96}, {"w": "Las", "s": 9.14, "e": 9.68}, {"w": "capacitaciones", "s": 9.73, "e": 10.48}, {"w": "pasan.", "s": 10.54, "e": 10.96}, {"w": "Los", "s": 11.08, "e": 11.44}, {"w": "consultores", "s": 11.5, "e": 12.16}, {"w": "presentan.", "s": 12.21, "e": 13.0}, {"w": "Y", "s": 13.1, "e": 13.2}, {"w": "el", "s": 13.227, "e": 13.28}, {"w": "lunes", "s": 13.32, "e": 13.6}, {"w": "siguiente,", "s": 13.656, "e": 14.48}, {"w": "todo", "s": 14.56, "e": 14.88}, {"w": "sigue", "s": 14.933, "e": 15.2}, {"w": "igual.", "s": 15.28, "e": 15.76}], "s03": [{"w": "¿Y", "s": 0, "e": 0.08}, {"w": "si", "s": 0.16, "e": 0.32}, {"w": "en", "s": 0.4, "e": 0.56}, {"w": "lugar", "s": 0.613, "e": 0.88}, {"w": "de", "s": 0.907, "e": 0.96}, {"w": "otro", "s": 1.008, "e": 1.2}, {"w": "curso,", "s": 1.28, "e": 1.76}, {"w": "hubiera", "s": 1.9, "e": 2.48}, {"w": "alguien", "s": 2.52, "e": 2.8}, {"w": "adentro?", "s": 2.853, "e": 3.44}, {"w": "Un", "s": 3.68, "e": 4.16}, {"w": "especialista", "s": 4.204, "e": 4.8}, {"w": "en", "s": 4.827, "e": 4.88}, {"w": "inteligencia", "s": 4.93, "e": 5.6}, {"w": "artificial", "s": 5.665, "e": 6.32}, {"w": "que", "s": 6.44, "e": 6.8}, {"w": "llegue", "s": 6.832, "e": 7.2}, {"w": "todas", "s": 7.253, "e": 7.52}, {"w": "las", "s": 7.56, "e": 7.68}, {"w": "semanas,", "s": 7.74, "e": 8.48}, {"w": "se", "s": 8.533, "e": 8.64}, {"w": "siente", "s": 8.68, "e": 8.96}, {"w": "con", "s": 9, "e": 9.12}, {"w": "vos", "s": 9.2, "e": 9.44}, {"w": "y", "s": 9.52, "e": 9.6}, {"w": "con", "s": 9.66, "e": 9.84}, {"w": "tu", "s": 9.867, "e": 9.92}, {"w": "equipo,", "s": 9.977, "e": 10.4}, {"w": "y", "s": 10.64, "e": 10.88}, {"w": "trabaje", "s": 10.928, "e": 11.28}, {"w": "sobre", "s": 11.333, "e": 11.6}, {"w": "lo", "s": 11.653, "e": 11.76}, {"w": "que", "s": 11.8, "e": 11.92}, {"w": "hoy", "s": 11.98, "e": 12.16}, {"w": "tenés", "s": 12.24, "e": 12.64}, {"w": "arriba", "s": 12.667, "e": 12.96}, {"w": "de", "s": 12.987, "e": 13.04}, {"w": "la", "s": 13.067, "e": 13.12}, {"w": "mesa.", "s": 13.216, "e": 13.76}], "s04": [{"w": "Cuatro", "s": 0, "e": 0.32}, {"w": "horas", "s": 0.373, "e": 0.64}, {"w": "presenciales", "s": 0.688, "e": 1.36}, {"w": "por", "s": 1.4, "e": 1.52}, {"w": "semana.", "s": 1.589, "e": 2.08}, {"w": "A", "s": 2.32, "e": 2.56}, {"w": "veces", "s": 2.627, "e": 2.96}, {"w": "con", "s": 3.02, "e": 3.2}, {"w": "uno", "s": 3.28, "e": 3.52}, {"w": "o", "s": 3.64, "e": 3.76}, {"w": "dos", "s": 3.82, "e": 4}, {"w": "directivos,", "s": 4.046, "e": 4.8}, {"w": "analizando", "s": 4.864, "e": 5.44}, {"w": "decisiones.", "s": 5.502, "e": 6.32}, {"w": "A", "s": 6.56, "e": 6.8}, {"w": "veces", "s": 6.867, "e": 7.2}, {"w": "con", "s": 7.24, "e": 7.36}, {"w": "las", "s": 7.4, "e": 7.52}, {"w": "áreas", "s": 7.573, "e": 7.84}, {"w": "gerenciales,", "s": 7.88, "e": 8.64}, {"w": "buscando", "s": 8.704, "e": 9.12}, {"w": "oportunidades.", "s": 9.18, "e": 10.16}, {"w": "Y", "s": 10.4, "e": 10.64}, {"w": "a", "s": 10.68, "e": 10.72}, {"w": "veces,", "s": 10.813, "e": 11.64}, {"w": "manos", "s": 11.7, "e": 12.0}, {"w": "a", "s": 12.04, "e": 12.08}, {"w": "la", "s": 12.107, "e": 12.16}, {"w": "obra", "s": 12.224, "e": 12.48}, {"w": "sobre", "s": 12.533, "e": 12.8}, {"w": "una", "s": 12.84, "e": 12.96}, {"w": "necesidad", "s": 13.027, "e": 13.52}, {"w": "concreta.", "s": 13.6, "e": 14.32}], "s05": [{"w": "En", "s": 0, "e": 0.08}, {"w": "una", "s": 0.14, "e": 0.32}, {"w": "jornada", "s": 0.384, "e": 0.88}, {"w": "se", "s": 0.987, "e": 1.2}, {"w": "puede", "s": 1.253, "e": 1.52}, {"w": "analizar", "s": 1.552, "e": 2}, {"w": "un", "s": 2.027, "e": 2.08}, {"w": "proceso", "s": 2.17, "e": 2.8}, {"w": "y", "s": 2.96, "e": 3.12}, {"w": "definir", "s": 3.173, "e": 3.52}, {"w": "cómo", "s": 3.6, "e": 3.92}, {"w": "incorporar", "s": 3.973, "e": 4.56}, {"w": "IA.", "s": 4.747, "e": 5.2}, {"w": "Configurar", "s": 5.371, "e": 6.64}, {"w": "un", "s": 6.667, "e": 6.72}, {"w": "asistente", "s": 6.773, "e": 7.28}, {"w": "sencillo.", "s": 7.32, "e": 8.0}, {"w": "Diseñar", "s": 8.176, "e": 9.12}, {"w": "un", "s": 9.147, "e": 9.2}, {"w": "flujo", "s": 9.26, "e": 9.6}, {"w": "de", "s": 9.627, "e": 9.68}, {"w": "trabajo.", "s": 9.75, "e": 10.72}, {"w": "Hacer", "s": 10.96, "e": 11.44}, {"w": "una", "s": 11.48, "e": 11.6}, {"w": "prueba", "s": 11.634, "e": 11.84}, {"w": "de", "s": 11.893, "e": 12.0}, {"w": "concepto.", "s": 12.06, "e": 12.72}, {"w": "Automatizar", "s": 12.88, "e": 14.08}, {"w": "algo", "s": 14.128, "e": 14.32}, {"w": "simple.", "s": 14.389, "e": 15.28}, {"w": "Avanzar", "s": 15.44, "e": 16.08}, {"w": "un", "s": 16.107, "e": 16.16}, {"w": "prototipo.", "s": 16.208, "e": 16.96}, {"w": "Cosas", "s": 17.2, "e": 18}, {"w": "chicas", "s": 18.057, "e": 18.4}, {"w": "que,", "s": 18.46, "e": 18.8}, {"w": "semana", "s": 18.857, "e": 19.2}, {"w": "a", "s": 19.32, "e": 19.44}, {"w": "semana,", "s": 19.474, "e": 19.84}, {"w": "cambian", "s": 19.952, "e": 20.56}, {"w": "cómo", "s": 20.624, "e": 20.88}, {"w": "trabaja", "s": 20.928, "e": 21.28}, {"w": "la", "s": 21.333, "e": 21.44}, {"w": "empresa.", "s": 21.51, "e": 22.08}], "s06": [{"w": "Mientras", "s": 0, "e": 0.4}, {"w": "tanto,", "s": 0.467, "e": 1.2}, {"w": "todo", "s": 1.248, "e": 1.44}, {"w": "el", "s": 1.467, "e": 1.52}, {"w": "equipo", "s": 1.577, "e": 1.92}, {"w": "tiene", "s": 1.96, "e": 2.16}, {"w": "acceso", "s": 2.217, "e": 2.56}, {"w": "a", "s": 2.64, "e": 2.72}, {"w": "la", "s": 2.747, "e": 2.8}, {"w": "Academia", "s": 2.864, "e": 3.36}, {"w": "de", "s": 3.413, "e": 3.52}, {"w": "IA:", "s": 3.68, "e": 4.08}, {"w": "Fundamentos", "s": 4.208, "e": 5.12}, {"w": "de", "s": 5.173, "e": 5.28}, {"w": "IA", "s": 5.44, "e": 5.76}, {"w": "en", "s": 5.84, "e": 6.0}, {"w": "el", "s": 6.027, "e": 6.08}, {"w": "trabajo,", "s": 6.15, "e": 6.72}, {"w": "ejercicios", "s": 6.88, "e": 7.68}, {"w": "prácticos,", "s": 7.72, "e": 8.4}, {"w": "certificación,", "s": 8.48, "e": 9.52}, {"w": "guías", "s": 9.653, "e": 10.16}, {"w": "por", "s": 10.2, "e": 10.32}, {"w": "función,", "s": 10.39, "e": 11.24}, {"w": "clases", "s": 11.291, "e": 11.6}, {"w": "en", "s": 11.653, "e": 11.76}, {"w": "vivo.", "s": 11.824, "e": 12.16}, {"w": "Una", "s": 12.36, "e": 12.96}, {"w": "base", "s": 13.024, "e": 13.28}, {"w": "común", "s": 13.34, "e": 13.6}, {"w": "para", "s": 13.648, "e": 13.84}, {"w": "que", "s": 13.88, "e": 14.0}, {"w": "el", "s": 14.027, "e": 14.08}, {"w": "acompañamiento", "s": 14.13, "e": 14.96}, {"w": "tenga", "s": 15.013, "e": 15.28}, {"w": "dónde", "s": 15.36, "e": 15.6}, {"w": "apoyarse.", "s": 15.653, "e": 16.4}], "s07": [{"w": "Primero,", "s": 0, "e": 0.72}, {"w": "capacitación:", "s": 0.76, "e": 1.52}, {"w": "los", "s": 1.66, "e": 2.08}, {"w": "equipos", "s": 2.14, "e": 2.56}, {"w": "desarrollan", "s": 2.608, "e": 3.12}, {"w": "una", "s": 3.16, "e": 3.28}, {"w": "base", "s": 3.328, "e": 3.52}, {"w": "común.", "s": 3.58, "e": 4.36}, {"w": "Después,", "s": 4.45, "e": 5.041}, {"w": "acompañamiento:", "s": 5.13, "e": 6.32}, {"w": "la", "s": 6.507, "e": 6.88}, {"w": "empresa", "s": 6.93, "e": 7.28}, {"w": "identifica", "s": 7.32, "e": 7.84}, {"w": "necesidades", "s": 7.907, "e": 8.64}, {"w": "y", "s": 8.68, "e": 8.72}, {"w": "prioridades.", "s": 8.773, "e": 9.68}, {"w": "Después,", "s": 9.86, "e": 10.72}, {"w": "aplicación:", "s": 10.807, "e": 11.68}, {"w": "las", "s": 11.82, "e": 12.24}, {"w": "oportunidades", "s": 12.29, "e": 12.96}, {"w": "se", "s": 13.013, "e": 13.12}, {"w": "convierten", "s": 13.152, "e": 13.6}, {"w": "en", "s": 13.653, "e": 13.76}, {"w": "pruebas", "s": 13.813, "e": 14.24}, {"w": "y", "s": 14.28, "e": 14.32}, {"w": "soluciones.", "s": 14.36, "e": 15.44}, {"w": "Y", "s": 15.6, "e": 15.76}, {"w": "cuando", "s": 15.794, "e": 16}, {"w": "el", "s": 16.027, "e": 16.08}, {"w": "alcance", "s": 16.12, "e": 16.48}, {"w": "lo", "s": 16.533, "e": 16.64}, {"w": "pide,", "s": 16.68, "e": 17.36}, {"w": "se", "s": 17.413, "e": 17.52}, {"w": "abre", "s": 17.568, "e": 17.76}, {"w": "un", "s": 17.787, "e": 17.84}, {"w": "proyecto", "s": 17.884, "e": 18.24}, {"w": "específico,", "s": 18.3, "e": 19.2}, {"w": "cotizado", "s": 19.24, "e": 19.68}, {"w": "aparte.", "s": 19.747, "e": 20.68}, {"w": "Sin", "s": 20.79, "e": 21.12}, {"w": "sorpresas.", "s": 21.18, "e": 22}], "s08": [{"w": "OXY46", "s": 0, "e": 1.2}, {"w": "Inhouse", "s": 1.28, "e": 1.84}, {"w": "es", "s": 1.973, "e": 2.24}, {"w": "para", "s": 2.288, "e": 2.48}, {"w": "PyMEs", "s": 2.56, "e": 2.96}, {"w": "y", "s": 3, "e": 3.04}, {"w": "grandes", "s": 3.09, "e": 3.44}, {"w": "empresas,", "s": 3.511, "e": 4.28}, {"w": "de", "s": 4.347, "e": 4.48}, {"w": "cincuenta", "s": 4.52, "e": 4.88}, {"w": "empleados", "s": 4.933, "e": 5.44}, {"w": "en", "s": 5.467, "e": 5.52}, {"w": "adelante,", "s": 5.584, "e": 6.16}, {"w": "con", "s": 6.3, "e": 6.72}, {"w": "oportunidades", "s": 6.77, "e": 7.44}, {"w": "de", "s": 7.493, "e": 7.6}, {"w": "IA", "s": 7.733, "e": 8.0}, {"w": "en", "s": 8.08, "e": 8.24}, {"w": "distintas", "s": 8.29, "e": 8.8}, {"w": "áreas,", "s": 8.88, "e": 9.48}, {"w": "y", "s": 9.58, "e": 9.68}, {"w": "que", "s": 9.7, "e": 9.76}, {"w": "necesitan", "s": 9.813, "e": 10.32}, {"w": "acompañamiento", "s": 10.38, "e": 11.28}, {"w": "además", "s": 11.349, "e": 11.76}, {"w": "de", "s": 11.787, "e": 11.84}, {"w": "formación.", "s": 11.888, "e": 12.56}, {"w": "Si", "s": 12.747, "e": 13.12}, {"w": "tu", "s": 13.147, "e": 13.2}, {"w": "empresa", "s": 13.25, "e": 13.6}, {"w": "es", "s": 13.627, "e": 13.68}, {"w": "así,", "s": 13.76, "e": 14.32}, {"w": "esto", "s": 14.368, "e": 14.56}, {"w": "es", "s": 14.613, "e": 14.72}, {"w": "para", "s": 14.768, "e": 14.96}, {"w": "vos.", "s": 15.06, "e": 15.44}], "s09": [{"w": "El", "s": 0, "e": 0.08}, {"w": "que", "s": 0.12, "e": 0.24}, {"w": "llega", "s": 0.272, "e": 0.48}, {"w": "todas", "s": 0.547, "e": 0.88}, {"w": "las", "s": 0.92, "e": 1.04}, {"w": "semanas", "s": 1.1, "e": 1.52}, {"w": "es", "s": 1.6, "e": 1.76}, {"w": "Martín", "s": 1.808, "e": 2.08}, {"w": "Cabrera,", "s": 2.144, "e": 2.96}, {"w": "cofundador", "s": 3.04, "e": 3.68}, {"w": "y", "s": 3.76, "e": 3.84}, {"w": "CEO", "s": 3.98, "e": 4.4}, {"w": "de", "s": 4.48, "e": 4.64}, {"w": "OXY46.", "s": 4.76, "e": 6.48}, {"w": "Trabaja", "s": 6.56, "e": 7.04}, {"w": "directamente", "s": 7.086, "e": 7.68}, {"w": "con", "s": 7.72, "e": 7.84}, {"w": "directivos", "s": 7.886, "e": 8.4}, {"w": "y", "s": 8.44, "e": 8.48}, {"w": "equipos", "s": 8.55, "e": 9.04}, {"w": "para", "s": 9.152, "e": 9.6}, {"w": "traducir", "s": 9.648, "e": 10.08}, {"w": "las", "s": 10.12, "e": 10.24}, {"w": "posibilidades", "s": 10.28, "e": 11.04}, {"w": "de", "s": 11.067, "e": 11.12}, {"w": "la", "s": 11.147, "e": 11.2}, {"w": "inteligencia", "s": 11.24, "e": 11.76}, {"w": "artificial", "s": 11.825, "e": 12.48}, {"w": "en", "s": 12.56, "e": 12.72}, {"w": "decisiones,", "s": 12.791, "e": 13.84}, {"w": "prioridades", "s": 13.88, "e": 14.56}, {"w": "y", "s": 14.72, "e": 14.88}, {"w": "formas", "s": 14.937, "e": 15.28}, {"w": "concretas", "s": 15.34, "e": 15.84}, {"w": "de", "s": 15.867, "e": 15.92}, {"w": "trabajar.", "s": 15.982, "e": 16.56}], "s10": [{"w": "Volvamos", "s": 0, "e": 0.48}, {"w": "a", "s": 0.56, "e": 0.64}, {"w": "ese", "s": 0.68, "e": 0.8}, {"w": "lunes,", "s": 0.84, "e": 1.52}, {"w": "nueve", "s": 1.58, "e": 1.84}, {"w": "de", "s": 1.893, "e": 2}, {"w": "la", "s": 2.027, "e": 2.08}, {"w": "mañana.", "s": 2.16, "e": 3.04}, {"w": "Pero", "s": 3.072, "e": 3.2}, {"w": "esta", "s": 3.264, "e": 3.52}, {"w": "vez", "s": 3.6, "e": 3.84}, {"w": "hay", "s": 3.92, "e": 4.16}, {"w": "alguien", "s": 4.2, "e": 4.48}, {"w": "en", "s": 4.507, "e": 4.56}, {"w": "la", "s": 4.613, "e": 4.72}, {"w": "sala", "s": 4.784, "e": 5.04}, {"w": "que", "s": 5.08, "e": 5.2}, {"w": "sabe", "s": 5.264, "e": 5.52}, {"w": "por", "s": 5.56, "e": 5.68}, {"w": "dónde", "s": 5.76, "e": 6.0}, {"w": "empezar.", "s": 6.053, "e": 6.64}, {"w": "Una", "s": 6.84, "e": 7.44}, {"w": "primera", "s": 7.49, "e": 7.84}, {"w": "conversación", "s": 7.89, "e": 8.56}, {"w": "alcanza", "s": 8.613, "e": 8.96}, {"w": "para", "s": 9.008, "e": 9.2}, {"w": "ver", "s": 9.24, "e": 9.36}, {"w": "si", "s": 9.44, "e": 9.6}, {"w": "OXY46", "s": 9.72, "e": 10.88}, {"w": "Inhouse", "s": 11.013, "e": 11.68}, {"w": "encaja", "s": 11.867, "e": 12.48}, {"w": "en", "s": 12.507, "e": 12.56}, {"w": "tu", "s": 12.613, "e": 12.72}, {"w": "empresa.", "s": 12.78, "e": 13.28}, {"w": "Solicitá", "s": 13.4, "e": 14.24}, {"w": "una", "s": 14.28, "e": 14.4}, {"w": "reunión.", "s": 14.448, "e": 15.04}, {"w": "El", "s": 15.227, "e": 15.6}, {"w": "lunes", "s": 15.68, "e": 16.0}, {"w": "que", "s": 16.02, "e": 16.08}, {"w": "viene", "s": 16.147, "e": 16.48}, {"w": "puede", "s": 16.573, "e": 17.04}, {"w": "ser", "s": 17.08, "e": 17.2}, {"w": "distinto.", "s": 17.264, "e": 18.0}]};
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const app = $('#app'), stage = $('#stage'), caption = $('#caption');
+
+/* ================= overlays (line-art) ================= */
+const O = {
+  box: (x, y, w, h, r = 6) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" pathLength="1"/>`,
+  line: (x1, y1, x2, y2, dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" pathLength="1" ${dash ? 'class="dash"' : ''}/>`,
+  arrow: (x1, y, x2) => `<path pathLength="1" d="M${x1} ${y} H${x2} M${x2 - 6} ${y - 4} L${x2} ${y} L${x2 - 6} ${y + 4}"/>`,
+  circ: (cx, cy, r) => `<circle cx="${cx}" cy="${cy}" r="${r}" pathLength="1"/>`,
+  red: (cx, cy, r = 3.2) => `<circle class="reddot" cx="${cx}" cy="${cy}" r="${r}"/>`,
+  ocre: (x, y, w, h) => `<rect class="fill" x="${x}" y="${y}" width="${w}" height="${h}"/>`,
+  bars: (x, y, hs) => hs.map((h, i) => `<line x1="${x + i * 9}" y1="${y}" x2="${x + i * 9}" y2="${y - h}" pathLength="1"/>`).join(''),
+  spark: (x, y, pts) => `<polyline pathLength="1" points="${pts.map((p, i) => `${x + i * 12},${y - p}`).join(' ')}"/>`,
+  card: (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" pathLength="1"/><line x1="${x + 10}" y1="${y + 14}" x2="${x + w * .55}" y2="${y + 14}" pathLength="1"/><line x1="${x + 10}" y1="${y + 24}" x2="${x + w * .8}" y2="${y + 24}" pathLength="1"/><line x1="${x + 10}" y1="${y + 34}" x2="${x + w * .45}" y2="${y + 34}" pathLength="1"/>`
+};
+const OVERLAYS = {
+  hero: () => `<g class="g1">${O.card(28, 30, 118, 50)}${O.card(40, 100, 118, 50)}${O.line(86, 80, 96, 100, 1)}</g>
+    <g class="g2">${O.box(230, 40, 34, 24)}${O.arrow(268, 52, 292)}${O.box(296, 40, 34, 24)}${O.arrow(334, 52, 358)}${O.box(362, 40, 34, 24)}${O.red(379, 52)}</g>
+    <g class="g3">${O.line(230, 250, 300, 250, 1)}${O.bars(236, 246, [12, 20, 16, 28, 24])}${O.spark(300, 250, [8, 14, 10, 22, 18, 30])}${O.ocre(236, 226, 8, 20)}</g>
+    <g class="g4">${O.circ(70, 232, 22)}<path pathLength="1" d="M70 210 A22 22 0 0 1 92 232"/>${O.ocre(66, 228, 8, 8)}${O.line(70, 260, 70, 290, 1)}</g>
+    <g class="g5">${O.line(146, 55, 230, 52, 1)}${O.line(158, 125, 230, 250, 1)}</g>`,
+  scattered: () => `<g class="g1">${O.box(40, 40, 46, 26)}${O.line(90, 54, 118, 54, 1)}</g><g class="g2">${O.bars(300, 90, [10, 18, 8])}${O.line(296, 90, 340, 90)}</g>
+    <g class="g3">${O.circ(120, 240, 16)}${O.line(140, 240, 175, 232, 1)}</g><g class="g4">${O.card(250, 220, 90, 44)}</g><g class="g5">${O.line(60, 150, 100, 150, 1)}${O.box(340, 40, 30, 22)}${O.red(355, 51)}</g>`,
+  calendar: () => { let s = ''; for (let r = 0; r < 4; r++) for (let c = 0; c < 7; c++) s += O.box(250 + c * 20, 40 + r * 20, 16, 16, 2); return `<g class="g1">${s}${O.circ(310, 108, 40)}${O.red(370, 48)}</g><g class="g2">${O.card(30, 40, 110, 46)}${O.line(40, 100, 130, 100, 1)}${O.line(40, 110, 110, 110, 1)}</g>`; },
+  dial: () => `<g class="g1">${O.circ(320, 90, 46)}<path pathLength="1" d="M320 44 A46 46 0 0 1 366 90"/>${O.ocre(316, 84, 8, 8)}${O.red(366, 90)}</g>
+    <g class="g2">${O.box(40, 40, 60, 26)}${O.line(70, 66, 70, 96)}${O.line(70, 96, 30, 130)}${O.line(70, 96, 70, 130)}${O.line(70, 96, 110, 130)}${O.box(10, 130, 40, 22)}${O.box(50, 130, 40, 22)}${O.box(90, 130, 40, 22)}</g>`,
+  flowchart: () => `<g class="g1">${O.box(30, 40, 60, 28)}${O.arrow(94, 54, 118)}${O.box(122, 40, 60, 28)}${O.arrow(186, 54, 210)}${O.box(214, 40, 60, 28)}${O.arrow(278, 54, 302)}${O.box(306, 40, 60, 28)}${O.red(336, 54)}</g>
+    <g class="g2">${O.line(60, 68, 60, 110, 1)}${O.circ(60, 122, 12)}${O.line(60, 134, 60, 170, 1)}${O.bars(40, 210, [10, 18, 14, 24])}${O.line(36, 210, 80, 210)}</g><g class="g3">${O.card(250, 200, 110, 50)}${O.ocre(258, 240, 40, 4)}</g>`,
+  academy: () => `<g class="g1">${O.box(40, 40, 50, 36, 3)}${O.line(48, 52, 82, 52)}${O.line(48, 62, 74, 62)}</g><g class="g2">${O.circ(200, 60, 18)}<path pathLength="1" d="M195 52l14 8-14 8z"/></g>
+    <g class="g3">${O.circ(330, 70, 22)}<path pathLength="1" d="M322 92l-3 22 11-6 11 6-3-22"/>${O.red(330, 70)}</g><g class="g4">${O.line(90, 58, 182, 60, 1)}${O.line(218, 60, 308, 66, 1)}${O.box(60, 230, 90, 40, 3)}${O.line(70, 244, 130, 244)}${O.line(70, 256, 110, 256)}${O.ocre(136, 240, 8, 8)}</g>`,
+  org: () => `<g class="g1">${O.box(180, 30, 40, 22)}${O.line(200, 52, 200, 80)}${O.line(60, 80, 340, 80)}${O.line(60, 80, 60, 100)}${O.line(155, 80, 155, 100)}${O.line(245, 80, 245, 100)}${O.line(340, 80, 340, 100)}</g>
+    <g class="g2">${O.box(38, 100, 44, 22)}${O.box(133, 100, 44, 22)}${O.box(223, 100, 44, 22)}${O.box(318, 100, 44, 22)}${O.red(200, 41)}</g><g class="g3">${O.line(50, 250, 70, 250, 1)}<path pathLength="1" d="M60 245l4 5 8-9"/>${O.ocre(110, 240, 60, 10)}</g>`,
+  signature: () => `<g class="g1"><path pathLength="1" d="M40 200 C 120 120, 160 260, 230 180 S 330 140, 380 200"/><path pathLength="1" d="M60 230 H 340" class="dash"/>${O.red(384, 200)}</g>`,
+  connected: () => `<g class="g1">${O.box(30, 60, 56, 26)}${O.arrow(90, 73, 118)}${O.box(122, 60, 56, 26)}${O.arrow(182, 73, 210)}${O.box(214, 60, 56, 26)}${O.arrow(274, 73, 302)}${O.box(306, 60, 56, 26)}</g>
+    <g class="g2">${O.line(150, 86, 150, 130)}${O.line(58, 130, 334, 130)}${O.line(58, 130, 58, 150)}${O.line(242, 130, 242, 150)}${O.line(334, 130, 334, 150)}${O.box(36, 150, 44, 22)}${O.box(220, 150, 44, 22)}${O.box(312, 150, 44, 22)}${O.red(334, 73)}</g>
+    <g class="g3">${O.line(36, 250, 90, 250, 1)}${O.bars(40, 246, [8, 16, 12, 22, 26])}${O.spark(300, 250, [6, 12, 9, 20, 16, 28])}${O.ocre(120, 238, 40, 4)}</g>`
+};
+const LABELS = { hero: [[7, 8, 'Prompt'], [10, 30, 'Respuesta', 'ocre'], [56, 8, 'Flujo de trabajo'], [56, 70, 'Data insights', 'ocre'], [8, 72, 'KPI']] };
+
+function buildPic(pic) {
+  const key = pic.dataset.img, ov = pic.dataset.ov;
+  if (key && IMG[key]) { const im = new Image(); im.alt = ''; im.decoding = 'async'; im.src = IMG[key]; pic.appendChild(im); } else if (key) pic.classList.add('empty');
+  if (ov && OVERLAYS[ov]) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 400 300'); svg.setAttribute('preserveAspectRatio', 'xMidYMid slice'); svg.classList.add('ov');
+    svg.innerHTML = OVERLAYS[ov]();
+    pic.appendChild(svg);
+    if (pic.dataset.labels && LABELS[ov]) {
+      LABELS[ov].forEach(([x, y, t, c]) => { const l = document.createElement('span'); l.className = 'lbl' + (c ? ' ' + c : ''); l.style.left = x + '%'; l.style.top = y + '%'; l.textContent = t; pic.appendChild(l); });
+      const h = document.createElement('span'); h.className = 'hint'; h.textContent = 'Pasá el cursor'; pic.appendChild(h);
+      pic.addEventListener('pointerenter', () => pic.classList.add('show-lbl'));
+      pic.addEventListener('pointerleave', () => pic.classList.remove('show-lbl'));
+      pic.addEventListener('click', () => pic.classList.toggle('show-lbl'));
+    }
+  }
+}
+$$('.pic').forEach(buildPic);
+
+/* draw overlay groups in sequence */
+function drawOverlay(pic, delay = 350, step = 420) {
+  if (!pic) return;
+  const gs = $$('.ov > g', pic); gs.forEach(g => g.classList.remove('in'));
+  gs.forEach((g, i) => setTimeout(() => g.classList.add('in'), delay + i * step));
+}
+
+/* ================= word splitting ================= */
+$$('[data-words]').forEach(h => {
+  h.innerHTML = h.dataset.words.split(' ').map((w, i) => `<span class="w" style="--i:${i}">${w} </span>`).join('');
+});
+
+/* ================= scenes ================= */
+const scenes = $$('.scene');
+const ids = scenes.map(s => s.dataset.id);
+const dotsEl = $('#dots');
+scenes.forEach((s, i) => { const b = document.createElement('button'); b.setAttribute('aria-label', 'Escena ' + i); b.onclick = () => go(i, true); dotsEl.appendChild(b); });
+
+let cur = 0, playing = false, muted = false, silent = false, timerId = null, raf = null, endTimer = null, unlocked = false;
+const audios = {}; ids.forEach(id => { if (AUD[id]) { const a = new Audio(AUD[id]); a.preload = 'auto'; audios[id] = a; } });
+
+/* estimated timing when no timestamps */
+function estimate(text, dur) {
+  const words = text.split(/\s+/); const wt = words.map(w => w.replace(/[^\p{L}\p{N}]/gu, '').length + 1.2 + (/[.,;:?!]$/.test(w) ? 2.6 : 0));
+  const tot = wt.reduce((a, b) => a + b, 0); let t = 0;
+  return words.map((w, i) => { const s = t / tot * dur; t += wt[i]; return { w, s, e: t / tot * dur }; });
+}
+function wordsFor(id, dur) {
+  const sc = SCRIPT.scenes.find(s => s.id === id); if (!sc) return [];
+  if (TIMING[id] && TIMING[id].length) return TIMING[id];
+  return estimate(sc.vo, dur);
+}
+
+/* cues: substring of VO → handler */
+const CUES = {
+  s01: [['Cada uno a su manera', () => { const h = $('[data-id=s01] h2'); h.classList.add('loose'); }], ['sin nadie', () => $$('[data-id=s01] h2 .w').forEach((w, i) => i % 3 === 1 && w.classList.add('dim'))]],
+  s02: [['Las capacitaciones', () => on('#lines02 > span:nth-child(1)')], ['Los consultores', () => on('#lines02 > span:nth-child(2)')], ['todo sigue igual', () => { on('#same'); on('#strike1'); setTimeout(() => on('#strike2'), 350); }]],
+  s03: [['Un especialista', () => drawOverlay($('[data-id=s03] .pic'), 0, 380)], ['todas las semanas', () => on('#ul03')], ['arriba de la mesa', () => $('[data-id=s03] .pic').classList.add('show-lbl')]],
+  s04: [['Cuatro horas', () => countTo('#num4', 4, 900)], ['uno o dos directivos', () => lit('#cards04 .card[data-k=dir]')], ['áreas gerenciales', () => lit('#cards04 .card[data-k=areas]')], ['manos a la obra', () => lit('#cards04 .card[data-k=manos]')]],
+  s05: [['analizar un proceso', () => on('#flow05 .node[data-k=proceso]')], ['asistente', () => on('#flow05 .node[data-k=asistente]')], ['flujo de trabajo', () => on('#flow05 .node[data-k=flujo]')], ['prueba de concepto', () => on('#flow05 .node[data-k=prueba]')], ['Automatizar', () => on('#flow05 .node[data-k=auto]')], ['prototipo', () => on('#flow05 .node[data-k=proto]')], ['Cosas chicas', () => { on('#note05'); $$('#flow05 .node').forEach((n, i) => setTimeout(() => { n.classList.add('hot'); setTimeout(() => n.classList.remove('hot'), 420); }, i * 120)); }]],
+  s06: [['Fundamentos', () => on('#stamps06 .stamp[data-k=fund]')], ['ejercicios', () => on('#stamps06 .stamp[data-k=ejer]')], ['certificación', () => on('#stamps06 .stamp[data-k=cert]')], ['clases en vivo', () => on('#stamps06 .stamp[data-k=vivo]')]],
+  s07: [['Primero', () => { $('#path07').classList.add('go'); }], ['capacitación', () => hot('#path07 .ms[data-k=cap]')], ['acompañamiento', () => hot('#path07 .ms[data-k=acomp]')], ['aplicación', () => hot('#path07 .ms[data-k=aplic]')], ['proyecto específico', () => hot('#path07 .ms[data-k=des]')], ['Sin sorpresas', () => on('#tag07')]],
+  s08: [['PyMEs', () => tick('pyme')], ['cincuenta', () => tick('50')], ['distintas áreas', () => tick('areas')], ['acompañamiento además', () => tick('acomp')], ['esto es para vos', () => { on('#verdict08'); setTimeout(() => on('#help08'), 1200); }]],
+  s09: [['cofundador', () => on('#bio09 .sub')], ['Trabaja directamente', () => on('#bio09 p:nth-of-type(1)')], ['formas concretas', () => on('#bio09 p:nth-of-type(2)')]],
+  s10: [['alguien en la sala', () => drawOverlay($('[data-id=s10] .pic'), 0, 500)], ['Solicitá una reunión', () => on('#cta10')], ['puede ser distinto', () => on('#links10')]]
+};
+const on = sel => { const el = $(sel); if (el) el.classList.add('in', 'on'); };
+const lit = sel => { $$('#cards04 .card').forEach(c => c.classList.remove('lit')); const el = $(sel); if (el) { el.classList.add('in', 'lit'); } };
+const hot = sel => { const all = $$('#path07 .ms'); all.forEach(c => c.classList.remove('hot')); $$('#path07 svg .k').forEach(c => c.classList.remove('hot')); const el = $(sel); if (el) { el.classList.add('in', 'hot'); const i = all.indexOf(el); const k = $$('#path07 svg .k')[i]; if (k) k.classList.add('hot'); } };
+const tick = k => { const l = $(`#check08 label[data-k="${k}"]`); if (l) { l.classList.add('in', 'on'); l.querySelector('input').checked = true; } };
+function countTo(sel, n, ms) { const el = $(sel); const t0 = performance.now(); (function f(t) { const p = Math.min(1, (t - t0) / ms); el.textContent = Math.round(p * n); if (p < 1) requestAnimationFrame(f); })(t0); }
+
+function resetScene(id) {
+  const s = $(`[data-id=${id}]`);
+  $$('.in, .on, .lit, .hot, .loose, .go', s).forEach(e => e.classList.remove('in', 'on', 'lit', 'hot', 'loose', 'go'));
+  $$('.ov > g', s).forEach(g => g.classList.remove('in'));
+  $$('.pic', s).forEach(p => p.classList.remove('show-lbl'));
+  $$('.w.dim', s).forEach(w => w.classList.remove('dim'));
+  if (id === 's04') $('#num4').textContent = '0';
+  if (id === 's08') $$('#check08 input').forEach(i => i.checked = false);
+  if (id === 's01') $$('[data-id=s01] h2 .w').forEach(w => { w.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px'); w.style.setProperty('--dy', (Math.random() * 50 - 25) + 'px'); w.style.setProperty('--r', (Math.random() * 12 - 6) + 'deg'); });
+}
+
+/* ================= caption ================= */
+let capWords = [], capIdx = -1, sentenceOf = [];
+function setCaption(id) {
+  const sc = SCRIPT.scenes.find(s => s.id === id); capIdx = -1;
+  if (!sc) { caption.innerHTML = ''; capWords = []; return; }
+  const words = sc.vo.split(/\s+/); let sent = 0; sentenceOf = words.map(w => { const s = sent; if (/[.?!]$/.test(w)) sent++; return s; });
+  caption.innerHTML = words.map((w, i) => `<span class="cw" data-s="${sentenceOf[i]}">${w} </span>`).join('');
+  capWords = $$('.cw', caption);
+  showSentence(0);
+}
+function showSentence(n) { capWords.forEach(w => { w.style.display = (+w.dataset.s === n || +w.dataset.s === n + 1 && sentenceOf.filter(x => x === n).length < 6) ? '' : 'none'; }); }
+function highlight(i) {
+  if (i === capIdx) return; capIdx = i;
+  capWords.forEach((w, k) => { w.classList.toggle('said', k < i); w.classList.toggle('now', k === i); });
+  if (capWords[i]) showSentence(+capWords[i].dataset.s);
+}
+
+/* ================= playback ================= */
+let fired = new Set(), tl = [];
+function prepareCues(id, words) {
+  fired = new Set(); tl = [];
+  const sc = SCRIPT.scenes.find(s => s.id === id); if (!sc) return;
+  const lower = words.map(w => w.w.toLowerCase().replace(/[^\p{L}\p{N}]/gu, ''));
+  (CUES[id] || []).forEach(([sub, fn], k) => {
+    const parts = sub.toLowerCase().split(/\s+/).map(p => p.replace(/[^\p{L}\p{N}]/gu, ''));
+    let idx = -1;
+    for (let i = 0; i <= lower.length - parts.length; i++) { if (parts.every((p, j) => lower[i + j].startsWith(p))) { idx = i; break; } }
+    if (idx < 0) idx = Math.floor(k / (CUES[id].length) * lower.length);
+    tl.push({ t: words[idx] ? words[idx].s : 0, fn, k });
+  });
+}
+function tickTime(t, dur, words) {
+  let i = words.findIndex(w => t < w.e); if (i < 0) i = words.length - 1;
+  highlight(i);
+  tl.forEach(c => { if (!fired.has(c.k) && t >= c.t) { fired.add(c.k); try { c.fn(); } catch (e) { } } });
+  $('#progFill').style.width = ((cur - 1 + Math.min(1, t / dur)) / (scenes.length - 1) * 100) + '%';
+}
+function stopAll() { Object.values(audios).forEach(a => { a.pause(); }); if (raf) cancelAnimationFrame(raf); raf = null; clearTimeout(endTimer); clearTimeout(timerId); }
+
+function runScene(id) {
+  const sc = SCRIPT.scenes.find(s => s.id === id); if (!sc) return;
+  const a = audios[id];
+  const useAudio = a && !silent;
+  const start = (dur) => {
+    const words = wordsFor(id, dur); prepareCues(id, words);
+    const t0 = performance.now();
+    const loop = () => {
+      if (!playing) return;
+      const t = useAudio ? a.currentTime : (performance.now() - t0) / 1000;
+      tickTime(t, dur, words);
+      if (t >= dur - 0.05 && !useAudio) { finish(); return; }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+  };
+  const finish = () => { if (raf) cancelAnimationFrame(raf); highlight(capWords.length); endTimer = setTimeout(() => { if (playing) go(cur + 1); }, 1100); };
+  if (useAudio) {
+    a.currentTime = 0; a.muted = muted;
+    const begin = () => start(a.duration || estimateDur(sc.vo));
+    a.onended = finish;
+    a.play().then(begin).catch(() => { start(estimateDur(sc.vo)); });
+  } else start(estimateDur(sc.vo));
+}
+const estimateDur = txt => txt.split(/\s+/).length * 0.42 + 1.2;
+
+function go(i, manual = false) {
+  i = Math.max(0, Math.min(scenes.length - 1, i));
+  stopAll();
+  const prev = scenes[cur]; const next = scenes[i];
+  if (prev !== next) { prev.classList.add('leaving'); prev.classList.remove('active'); setTimeout(() => prev.classList.remove('leaving'), 900); }
+  cur = i;
+  const id = next.dataset.id;
+  resetScene(id);
+  app.dataset.surface = next.dataset.surface || 'cream';
+  next.classList.add('active');
+  $$('#dots button').forEach((b, k) => b.classList.toggle('cur', k === i));
+  $$('.pic', next).forEach(p => { p.style.setProperty('--zoom', '1.06'); setTimeout(() => p.style.setProperty('--zoom', '1'), 60); });
+  if (i === 0) { caption.innerHTML = 'Una historia de tres minutos sobre lo que pasa cuando la IA deja de ser un curso y pasa a ser alguien que se sienta en tu mesa.'; $('#progFill').style.width = '0%'; drawOverlay($('.cover .pic'), 600, 500); playing = false; setPP(); return; }
+  setCaption(id);
+  if (!CUES[id] || !CUES[id].some(c => /especialista|alguien en la sala/.test(c[0]))) drawOverlay($('.pic', next), 500, 420);
+  $$('.rise', next).forEach(r => r.classList.add('in'));
+  if (manual && !playing) { playing = true; }
+  setPP();
+  runScene(id);
+}
+
+function unlock() {
+  if (unlocked) return; unlocked = true;
+  Object.values(audios).forEach(a => { a.muted = true; a.play().then(() => { a.pause(); a.currentTime = 0; a.muted = muted; }).catch(() => { }); });
+}
+function startStory(quiet) {
+  silent = quiet; if (!quiet) unlock();
+  playing = true; go(1);
+}
+function setPP() { $('#icoPP').innerHTML = playing ? '<path d="M8 5v14M16 5v14"/>' : '<path d="M7 4l12 8-12 8z"/>'; $('#btnPause').setAttribute('aria-label', playing ? 'Pausar' : 'Reproducir'); }
+function togglePause() {
+  if (cur === 0) { startStory(false); return; }
+  playing = !playing; setPP();
+  const a = audios[ids[cur]];
+  if (playing) { if (a && !silent && a.paused && a.currentTime > 0 && a.currentTime < a.duration) { a.play(); const words = wordsFor(ids[cur], a.duration); prepareCues(ids[cur], words); fired = new Set(tl.filter(c => c.t <= a.currentTime).map(c => c.k)); const loop = () => { if (!playing) return; tickTime(a.currentTime, a.duration, words); raf = requestAnimationFrame(loop); }; raf = requestAnimationFrame(loop); } else go(cur); }
+  else { if (a) a.pause(); if (raf) cancelAnimationFrame(raf); clearTimeout(endTimer); }
+}
+
+/* ================= controls ================= */
+$('#btnPlay').onclick = () => startStory(false);
+$('#btnQuiet').onclick = () => startStory(true);
+$('#btnPause').onclick = togglePause;
+$('#btnNext').onclick = () => go(cur + 1, true);
+$('#btnPrev').onclick = () => go(cur - 1, true);
+$('#btnRestart').onclick = () => { playing = false; go(0); };
+$('#btnAgain').onclick = () => { playing = true; go(1); };
+$('#btnMute').onclick = () => { muted = !muted; Object.values(audios).forEach(a => a.muted = muted); $('#icoSound .wave').style.opacity = muted ? 0 : 1; $('#btnMute').style.opacity = muted ? .5 : .75; };
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input,textarea')) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1, true); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1, true); }
+  else if (e.key === ' ') { e.preventDefault(); togglePause(); }
+  else if (e.key === 'Home') go(0);
+});
+/* swipe */
+let tx = 0, ty = 0;
+stage.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+stage.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(cur + (dx < 0 ? 1 : -1), true); }, { passive: true });
+
+/* ================= interactions ================= */
+/* pointer parallax on pictures + card tilt + spotlight + scattered words */
+stage.addEventListener('pointermove', e => {
+  if (REDUCED) return;
+  const s = scenes[cur]; const r = stage.getBoundingClientRect();
+  const nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5;
+  $$('.pic', s).forEach(p => { p.style.setProperty('--px', (nx * -14) + 'px'); p.style.setProperty('--py', (ny * -10) + 'px'); });
+  const spot = $('.spot', s); if (spot) { spot.style.setProperty('--mx', ((nx + .5) * 100) + '%'); spot.style.setProperty('--my', ((ny + .5) * 100) + '%'); }
+  $$('.card.in', s).forEach(c => { const cr = c.getBoundingClientRect(); const cx = (e.clientX - cr.left) / cr.width - .5, cy = (e.clientY - cr.top) / cr.height - .5; const inside = cx > -.6 && cx < .6 && cy > -.6 && cy < .6; c.style.setProperty('--ry', inside ? (cx * 10) + 'deg' : '0deg'); c.style.setProperty('--rx', inside ? (-cy * 8) + 'deg' : '0deg'); });
+  const h = $('[data-id=s01] h2.loose', s);
+  if (h) $$('.w', h).forEach(w => { const wr = w.getBoundingClientRect(); const dx = e.clientX - (wr.left + wr.width / 2), dy = e.clientY - (wr.top + wr.height / 2); const d = Math.hypot(dx, dy); if (d < 140) { const f = (140 - d) / 140 * 26; w.style.setProperty('--dx', (parseFloat(w.dataset.bx || w.style.getPropertyValue('--dx')) - dx / d * f) + 'px'); w.style.setProperty('--dy', (parseFloat(w.dataset.by || w.style.getPropertyValue('--dy')) - dy / d * f) + 'px'); } });
+});
+$$('[data-id=s01] h2 .w').forEach(w => { w.dataset.bx = ''; });
+/* cards clickable */
+$$('#cards04 .card').forEach(c => c.addEventListener('click', () => lit(`#cards04 .card[data-k=${c.dataset.k}]`)));
+/* s08 self-check */
+$$('#check08 label').forEach(l => l.addEventListener('click', e => {
+  e.preventDefault(); if (!l.classList.contains('in')) return;
+  l.classList.toggle('on'); const n = $$('#check08 label.on').length; const v = $('#verdict08'); v.classList.add('in');
+  v.textContent = n === 4 ? 'Esto es para vos.' : n >= 2 ? 'Vale una primera conversación.' : 'Charlemos igual: una reunión aclara el encaje.';
+}));
+/* magnetic CTA */
+const cta = $('#cta10');
+cta.addEventListener('pointermove', e => { if (REDUCED) return; const r = cta.getBoundingClientRect(); cta.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .12}px,${(e.clientY - r.top - r.height / 2) * .18}px)`; });
+cta.addEventListener('pointerleave', () => { cta.style.transform = ''; });
+/* milestones hover -> caption hint */
+$$('#path07 .ms').forEach(m => m.addEventListener('click', () => hot(`#path07 .ms[data-k=${m.dataset.k}]`)));
+$$('#path07 svg .k').forEach((k, i) => k.style.setProperty('--d', i));
+
+/* cover overlay draws on load */
+setTimeout(() => drawOverlay($('.cover .pic'), 200, 520), 300);
+setPP();
+</script>
+
+</body>
+</html>
